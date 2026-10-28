@@ -1,10 +1,14 @@
-import type { Task } from "./domain";
+import { AnswerField, type FormEvent } from "./AnswerField";
+import type { Answer, Task } from "./domain";
 
 type TaskCardProps = {
   task: Task | undefined;
+  answer: Answer | undefined;
+  onChange: (event: FormEvent) => void;
+  disabled: boolean;
 };
 
-export function TaskCard({ task }: TaskCardProps) {
+export function TaskCard({ task, answer, onChange, disabled }: TaskCardProps) {
   if (!task) {
     return <p>Задание не выбрано</p>;
   }
@@ -14,17 +18,12 @@ export function TaskCard({ task }: TaskCardProps) {
       <p>Тема: {task.topic}</p>
       <p>{task.prompt}</p>
       {task.code !== undefined ? <pre>{task.code}</pre> : null}
-      {task.kind === "single-choice" ? (
-        <ul>
-          {task.options.map((option) => (
-            <li key={option.id}>
-              {option.id}. {option.label}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>Это задание с коротким текстом. Поле ввода появится на следующем этапе.</p>
-      )}
+      <AnswerField
+        task={task}
+        answer={answer}
+        onChange={onChange}
+        disabled={disabled}
+      />
     </article>
   );
 }

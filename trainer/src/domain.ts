@@ -55,18 +55,24 @@ export function filterByTopic(set: TrainingSet, topic: string): Task[] {
   return set.tasks.filter((task) => task.topic === topic);
 }
 
-function isFilled(answer: Answer): boolean {
-  if (answer.kind === "short-text") {
-    return answer.text.trim() !== "";
-  }
-  return true;
+export function findAnswer(
+  answers: Answer[],
+  taskId: string,
+): Answer | undefined {
+  return answers.find((answer) => answer.taskId === taskId);
+}
+
+export function isAnswered(answer: Answer | undefined): boolean {
+  if (!answer) return false;
+  return answer.kind === "single-choice"
+    ? answer.optionId.length > 0
+    : answer.text.trim().length > 0;
 }
 
 export function countProgress(set: TrainingSet, answers: Answer[]): Progress {
-  const filled = answers.filter((answer) => {
-    const task = findTask(set, answer.taskId);
-    return task !== undefined && isFilled(answer);
-  }).length;
+  const filled = set.tasks.filter((task) =>
+    isAnswered(findAnswer(answers, task.id)),
+  ).length;
 
   return { filled, total: set.tasks.length };
 }
